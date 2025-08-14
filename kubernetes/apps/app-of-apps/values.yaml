@@ -1,0 +1,19 @@
+applications:
+  # - name: jellyfin
+  #   namespace: jellyfin
+  - name: longhorn
+    namespace: longhorn-system
+  - name: metallb
+    namespace: metallb-system
+  - name: traefik
+    namespace: traefik-system
+  - name: argocd
+    namespace: argocd
+  - name: sealed-secrets
+    namespace: sealed-secrets
+  - name: cloudflare-tunnel
+    namespace: cloudflare-tunnel
+  - name: static-web-test
+    namespace: static-web-test
+  - name: servarr
+    namespace: servarr

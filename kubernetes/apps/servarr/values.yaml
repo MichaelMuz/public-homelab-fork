@@ -1,0 +1,52 @@
+servarr:
+  jellyfin:
+    persistence:
+      media:
+        size: 20Gi
+    tailscale:
+      enabled: false
+  sonarr:
+    env:
+      TZ: America/New_York
+  prowlarr:
+    env:
+      TZ: America/New_York
+  bazarr:
+    env:
+      TZ: America/New_York
+  radarr:
+    env:
+      TZ: America/New_York
+  lidarr:
+    env:
+      TZ: America/New_York
+  readarr:
+    env:
+      TZ: America/New_York
+  # cleanuperr:
+  #   enabled: true
+  #   image:
+  #     repository: ghcr.io/cleanuparr/cleanuparr # repo name changed
+  #   secrets:
+  #     existingSecret: "qbittorrent-credentials"
+  #   env:
+  #     TZ: America/New_York
+  qbittorrent:
+    env:
+      TZ: America/New_York
+    persistence:
+      additionalVolumes:
+        - name: custom-scripts
+          configMap:
+            name: qbittorrent-custom-scripts
+            defaultMode: 0755
+        - name: qbittorrent-secrets
+          secret:
+            secretName: qbittorrent-credentials
+      additionalMounts:
+        - name: custom-scripts
+          mountPath: /custom-cont-init.d
+          readOnly: true
+        - name: qbittorrent-secrets
+          mountPath: /var/secrets/qbittorrent
+          readOnly: true

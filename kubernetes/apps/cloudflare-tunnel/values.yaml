@@ -1,0 +1,4 @@
+cloudflare-tunnel:
+  cloudflare:
+    tunnelName: "homelab-tunnel"
+    secretName: "cloudflare-tunnel-secret"

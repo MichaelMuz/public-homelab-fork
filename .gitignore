@@ -1,0 +1,13 @@
+.DS_Store
+.idea
+*.log
+tmp/
+
+.envrc
+.terraform*
+terraform.tfstate
+terraform.tfstate.backup
+.kubteconfig
+.talosconfig
+.argo_creds
+terraform.tfstate.*.backup

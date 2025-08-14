@@ -1,0 +1,44 @@
+# qbit will actually execute scripts found in this file so use it to set password
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: qbittorrent-custom-scripts
+  namespace: servarr
+data:
+  update-qbittorrent-config.sh: |
+    #!/bin/bash
+    CONFIG_DIR="/config/qBittorrent"
+    CONFIG_FILE="$CONFIG_DIR/qBittorrent.conf"
+    echo "**** Setting up qBittorrent WebUI credentials ****"
+
+    # Wait for config directory
+    while [ ! -d "$CONFIG_DIR" ]; do
+      echo "Waiting for qBittorrent config directory..."
+      sleep 2
+    done
+
+    # Wait for config file to exist
+    while [ ! -f "$CONFIG_FILE" ]; do
+      echo "Waiting for qBittorrent config file to be created..."
+      sleep 2
+    done
+
+    # Read credentials from mounted secret files
+    if [ -f "/var/secrets/qbittorrent/QBITTORRENT__USERNAME" ] && [ -f "/var/secrets/qbittorrent/password-hash" ]; then
+      WEBUI_USERNAME=$(cat /var/secrets/qbittorrent/QBITTORRENT__USERNAME)
+      WEBUI_PASSWORD_HASH=$(cat /var/secrets/qbittorrent/password-hash)
+
+      echo "Setting qBittorrent WebUI credentials..."
+
+      # Remove existing WebUI username/password lines
+      sed -i '/^WebUI\\Username=/d' "$CONFIG_FILE"
+      sed -i '/^WebUI\\Password_PBKDF2=/d' "$CONFIG_FILE"
+
+      # Add new credentials under [Preferences] section
+      sed -i '/^\[Preferences\]/a WebUI\\Username='"$WEBUI_USERNAME" "$CONFIG_FILE"
+      sed -i '/^WebUI\\Username=/a WebUI\\Password_PBKDF2="'"$WEBUI_PASSWORD_HASH"'"' "$CONFIG_FILE"
+
+      echo "qBittorrent WebUI credentials set successfully"
+    else
+      echo "Secret files not found, skipping setup"
+    fi

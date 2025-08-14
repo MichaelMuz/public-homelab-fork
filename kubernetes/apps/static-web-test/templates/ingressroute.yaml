@@ -1,0 +1,14 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: static-web-test
+  namespace: static-web-test
+spec:
+  entryPoints:
+    - web
+  routes:
+    - kind: Rule
+      match: Host(`www.michaelmuzafarov.dev`) || Host(`michaelmuzafarov.dev`)
+      services:
+        - name: static-web-test-nginx
+          port: 80

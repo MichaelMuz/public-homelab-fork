@@ -1,0 +1,7 @@
+apiVersion: v2
+name: servarr
+version: 1.0.0
+dependencies:
+  - name: servarr
+    version: "1.1.7"
+    repository: "https://charts.kubito.dev"

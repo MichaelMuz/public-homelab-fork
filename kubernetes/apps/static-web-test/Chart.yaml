@@ -1,0 +1,7 @@
+apiVersion: v2
+name: static-web
+version: 1.0.0
+dependencies:
+  - name: nginx
+    version: "18.2.4"
+    repository: "https://charts.bitnami.com/bitnami"
