@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: static-web-test-nginx
+  namespace: static-web-test
+spec:
+  type: ClusterIP
+  selector:
+    app: static-web-test-nginx
+  ports:
+  - port: 80
+    targetPort: 80

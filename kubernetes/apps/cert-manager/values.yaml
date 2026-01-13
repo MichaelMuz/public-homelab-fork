@@ -1,0 +1,9 @@
+cert-manager:
+  crds:
+    enabled: true
+
+  prometheus:
+    enabled: true
+    servicemonitor:
+      enabled: true
+      interval: 60s

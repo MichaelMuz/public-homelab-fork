@@ -1,6 +1,0 @@
-nginx:
-  service:
-    type: ClusterIP
-
-  ingress:
-    enabled: false

@@ -1,10 +1,4 @@
 locals {
-  # These configs exist only because we can't use for_each with different providers
-  lab_1_config = var.proxmox_cluster["lab-1"]
-  lab_2_config = var.proxmox_cluster["lab-2"]
-}
-
-locals {
   all_k8s_nodes = merge([
     for proxmox_node_name, proxmox_config in var.proxmox_cluster :
     proxmox_config.k8s_nodes

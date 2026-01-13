@@ -8,7 +8,7 @@ resource "proxmox_virtual_environment_vm" "talos_vms" {
 
   cpu {
     cores = each.value.cpu_cores
-    type  = "x86-64-v2-AES"
+    type  = "host"
   }
 
   memory {

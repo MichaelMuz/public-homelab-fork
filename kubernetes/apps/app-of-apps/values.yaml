@@ -1,19 +1,32 @@
 applications:
-  # - name: jellyfin
-  #   namespace: jellyfin
   - name: longhorn
     namespace: longhorn-system
   - name: metallb
     namespace: metallb-system
-  - name: traefik
-    namespace: traefik-system
+  - name: dns
+    namespace: dns
   - name: argocd
     namespace: argocd
   - name: sealed-secrets
     namespace: sealed-secrets
+  - name: cloudnative-pg
+    namespace: cnpg-system
+    serverSideApply: true # otherwise metadata annotations too long
   - name: cloudflare-tunnel
     namespace: cloudflare-tunnel
+  - name: tailscale
+    namespace: tailscale-system
+  - name: monitoring
+    namespace: monitoring
+    serverSideApply: true # otherwise crd metadata annotations too long
   - name: static-web-test
     namespace: static-web-test
   - name: servarr
     namespace: servarr
+  - name: immich
+    namespace: immich
+  - name: cert-manager
+    namespace: cert-manager
+  - name: envoy-gateway
+    namespace: envoy-gateway-system
+    serverSideApply: true # otherwise crd metadata annotations too long

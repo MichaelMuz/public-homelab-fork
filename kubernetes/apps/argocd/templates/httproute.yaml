@@ -1,0 +1,16 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: argocd-server
+  namespace: argocd
+spec:
+  parentRefs:
+    - name: eg
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - "argocd.michaelmuzafarov.dev"
+  rules:
+    - backendRefs:
+        - name: argocd-server
+          port: 80

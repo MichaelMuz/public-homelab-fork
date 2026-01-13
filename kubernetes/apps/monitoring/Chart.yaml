@@ -1,0 +1,13 @@
+apiVersion: v2
+name: monitoring
+version: 1.0.0
+dependencies:
+  - name: kube-prometheus-stack
+    version: "78.5.0"
+    repository: "https://prometheus-community.github.io/helm-charts"
+  - name: loki
+    version: "6.44.0"
+    repository: "https://grafana.github.io/helm-charts"
+  - name: promtail
+    version: "6.17.0"
+    repository: "https://grafana.github.io/helm-charts"

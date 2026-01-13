@@ -18,7 +18,7 @@ resource "talos_machine_configuration_apply" "cp_config_apply" {
   for_each = local.control_plane_nodes
   # cannot be more granular and depend on specific vm in module
   # MUST specify dependencies statically, can't even use a local variable
-  depends_on                  = [module.lab_1_vms, module.lab_2_vms]
+  depends_on                  = [module.vms]
   client_configuration        = talos_machine_secrets.machine_secrets.client_configuration
   machine_configuration_input = data.talos_machine_configuration.machineconfig_cp.machine_configuration
   node                        = each.value.ip_address
@@ -35,7 +35,7 @@ resource "talos_machine_configuration_apply" "worker_config_apply" {
   for_each = local.worker_nodes
   # cannot be more granular and depend on specific vm in module
   # MUST specify dependencies statically, can't even use a local variable
-  depends_on                  = [module.lab_1_vms, module.lab_2_vms]
+  depends_on                  = [module.vms]
   client_configuration        = talos_machine_secrets.machine_secrets.client_configuration
   machine_configuration_input = data.talos_machine_configuration.machineconfig_worker.machine_configuration
   node                        = each.value.ip_address

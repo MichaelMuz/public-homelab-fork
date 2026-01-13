@@ -12,8 +12,10 @@ terraform {
 }
 
 provider "proxmox" {
-  alias    = "lab_1"
-  endpoint = "https://${local.lab_1_config.ip_address}:8006/"
+  for_each = merge(var.proxmox_cluster, var.decommissioned_nodes)
+
+  alias    = "by-node"
+  endpoint = "https://${each.value.ip_address}:8006/"
   insecure = true # our proxmox nodes don't have a cert
   ssh {
     agent    = true
@@ -21,12 +23,3 @@ provider "proxmox" {
   }
 }
 
-provider "proxmox" {
-  alias    = "lab_2"
-  endpoint = "https://${local.lab_2_config.ip_address}:8006/"
-  insecure = true # our proxmox nodes don't have a cert
-  ssh {
-    agent    = true
-    username = "root"
-  }
-}

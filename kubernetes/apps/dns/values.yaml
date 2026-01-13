@@ -1,0 +1,33 @@
+coredns:
+  serviceType: LoadBalancer
+  isClusterService: false
+
+  service:
+    annotations:
+      metallb.universe.tf/loadBalancerIPs: 192.168.1.211
+
+  servers:
+    - zones:
+        - zone: michaelmuzafarov.dev
+      port: 53
+      plugins:
+        - name: errors
+        - name: log
+          configBlock: |-
+            class all
+        - name: health
+          configBlock: |-
+            lameduck 5s
+        - name: ready
+        - name: template
+          parameters: IN A
+          configBlock: |-
+            answer "{{ .Name }} 60 IN A 192.168.1.210"
+        - name: template
+          parameters: IN AAAA
+          configBlock: |-
+            rcode NOERROR
+        - name: template
+          parameters: IN HTTPS
+          configBlock: |-
+            rcode NOERROR

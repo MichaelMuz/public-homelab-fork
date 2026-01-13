@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: static-web-test-nginx
+  namespace: static-web-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: static-web-test-nginx
+  template:
+    metadata:
+      labels:
+        app: static-web-test-nginx
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80

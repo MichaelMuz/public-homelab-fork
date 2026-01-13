@@ -1,0 +1,16 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: static-web-test
+  namespace: static-web-test
+spec:
+  parentRefs:
+    - name: eg
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - "michaelmuzafarov.dev"
+  rules:
+    - backendRefs:
+        - name: static-web-test-nginx
+          port: 80

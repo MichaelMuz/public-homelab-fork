@@ -1,0 +1,42 @@
+immich:
+  controllers:
+    main:
+      containers:
+        main:
+          image:
+            tag: v2.4.1
+          env:
+            DB_HOSTNAME: immich-database-rw
+            DB_DATABASE_NAME: app
+            DB_USERNAME: app
+            DB_PASSWORD:
+              valueFrom:
+                secretKeyRef:
+                  name: immich-database-app
+                  key: password
+
+  immich:
+    persistence:
+      library:
+        existingClaim: immich-library
+    configuration: {}
+
+  valkey:
+    enabled: true
+    persistence:
+      data:
+        enabled: true
+        size: 1Gi
+        type: persistentVolumeClaim
+        accessMode: ReadWriteOnce
+
+  server:
+    enabled: true
+
+  machine-learning:
+    persistence:
+      cache:
+        enabled: true
+        size: 10Gi
+        type: persistentVolumeClaim
+        accessMode: ReadWriteMany

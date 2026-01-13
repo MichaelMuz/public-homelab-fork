@@ -5,6 +5,8 @@ kind: Application
 metadata:
   name: {{ .name }}
   namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
   source:
@@ -20,4 +22,7 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      {{- if .serverSideApply }}
+      - ServerSideApply=true
+      {{- end }}
 {{- end }}
