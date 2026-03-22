@@ -29,7 +29,7 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "homelab_tunnel_confi
         }
       },
       {
-        hostname =  "*.${var.domain}"
+        hostname = "*.${var.domain}"
         service  = "http://192.168.1.210:80"
         origin_request = {
           access = {

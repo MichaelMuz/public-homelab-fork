@@ -12,6 +12,32 @@ data "talos_machine_configuration" "machineconfig_cp" {
   cluster_endpoint = local.cluster_bootstrap_endpoint
   machine_type     = "controlplane"
   machine_secrets  = talos_machine_secrets.machine_secrets.machine_secrets
+  config_patches = [
+    yamlencode({
+      machine = {
+        install = {
+          extraKernelArgs = [
+            # Disable predictable interface naming so all VMs use eth0.
+            # MetalLB L2Advertisement is configured to announce only on eth0;
+            # without this, new nodes could get names like enx... and be skipped.
+            "net.ifnames=0",
+            "biosdevname=0",
+          ]
+        }
+      }
+      # Disabled — Cilium replaces both default CNI and kube-proxy.
+      cluster = {
+        network = {
+          cni = {
+            name = "none"
+          }
+        }
+        proxy = {
+          disabled = true
+        }
+      }
+    })
+  ]
 }
 
 resource "talos_machine_configuration_apply" "cp_config_apply" {
@@ -29,6 +55,32 @@ data "talos_machine_configuration" "machineconfig_worker" {
   cluster_endpoint = local.cluster_bootstrap_endpoint
   machine_type     = "worker"
   machine_secrets  = talos_machine_secrets.machine_secrets.machine_secrets
+  config_patches = [
+    yamlencode({
+      machine = {
+        install = {
+          extraKernelArgs = [
+            # Disable predictable interface naming so all VMs use eth0.
+            # MetalLB L2Advertisement is configured to announce only on eth0;
+            # without this, new nodes could get names like enx... and be skipped.
+            "net.ifnames=0",
+            "biosdevname=0",
+          ]
+        }
+      }
+      # Disabled — Cilium replaces both default CNI and kube-proxy.
+      cluster = {
+        network = {
+          cni = {
+            name = "none"
+          }
+        }
+        proxy = {
+          disabled = true
+        }
+      }
+    })
+  ]
 }
 
 resource "talos_machine_configuration_apply" "worker_config_apply" {

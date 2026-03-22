@@ -8,6 +8,10 @@ tmp/
 terraform.tfstate
 terraform.tfstate.backup
 .kubteconfig
+.kubeconfig
 .talosconfig
 .argo_creds
 terraform.tfstate.*.backup
+
+**/*.drawio.bkp
+.claude/

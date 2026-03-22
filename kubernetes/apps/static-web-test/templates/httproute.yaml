@@ -5,9 +5,12 @@ metadata:
   namespace: static-web-test
 spec:
   parentRefs:
-    - name: eg
+    - name: eg-public
       namespace: envoy-gateway-system
-      sectionName: http
+      sectionName: http-public
+    - name: eg-public
+      namespace: envoy-gateway-system
+      sectionName: https-public
   hostnames:
     - "michaelmuzafarov.dev"
   rules:

@@ -11,3 +11,4 @@ spec:
   dnsNames:
     - "michaelmuzafarov.dev"
     - "*.michaelmuzafarov.dev"
+    - "*.admin.michaelmuzafarov.dev"

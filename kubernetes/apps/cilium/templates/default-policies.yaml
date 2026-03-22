@@ -1,0 +1,36 @@
+apiVersion: "cilium.io/v2"
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: "default-deny-all"
+spec:
+  description: "Deny all but essential ingress by default"
+  endpointSelector:
+    matchExpressions:
+      - key: io.kubernetes.pod.namespace
+        operator: NotIn
+        values:
+          - kube-system
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: monitoring
+    - fromEntities:
+        - remote-node
+---
+apiVersion: "cilium.io/v2"
+kind: CiliumClusterwideNetworkPolicy
+metadata:
+  name: "deny-egress-to-hosts"
+spec:
+  description: "Deny all cluster egress to Proxmox node management IPs"
+  endpointSelector: {}
+  egress:
+    - toEntities:
+        - all
+  egressDeny:
+    - toCIDR:
+        - 192.168.1.196/32
+        - 192.168.1.197/32
+        - 192.168.1.198/32
+        - 192.168.1.199/32
+        - 192.168.1.200/32

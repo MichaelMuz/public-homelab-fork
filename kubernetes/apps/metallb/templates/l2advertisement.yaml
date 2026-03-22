@@ -3,3 +3,11 @@ kind: L2Advertisement
 metadata:
   name: homelab-l2
   namespace: metallb-system
+spec:
+  ipAddressPools:
+    - homelab-pool
+  # Only announce on the physical NIC. Cilium creates virtual interfaces
+  # (lxc_health, cilium_host, etc.) that confuse MetalLB's ARP announcements.
+  # Relies on net.ifnames=0 kernel arg in Talos machine config to keep eth0 stable.
+  interfaces:
+    - eth0

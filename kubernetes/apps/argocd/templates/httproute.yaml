@@ -5,11 +5,14 @@ metadata:
   namespace: argocd
 spec:
   parentRefs:
-    - name: eg
+    - name: eg-private
       namespace: envoy-gateway-system
-      sectionName: http
+      sectionName: http-admin
+    - name: eg-private
+      namespace: envoy-gateway-system
+      sectionName: https-admin
   hostnames:
-    - "argocd.michaelmuzafarov.dev"
+    - "argocd.admin.michaelmuzafarov.dev"
   rules:
     - backendRefs:
         - name: argocd-server

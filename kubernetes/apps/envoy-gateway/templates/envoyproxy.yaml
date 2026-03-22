@@ -1,7 +1,7 @@
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
 metadata:
-  name: envoy-proxy-config
+  name: envoy-proxy-public-config
   namespace: envoy-gateway-system
 spec:
   provider:
@@ -10,3 +10,17 @@ spec:
       envoyService:
         annotations:
           metallb.universe.tf/loadBalancerIPs: "192.168.1.210"
+
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: envoy-proxy-private-config
+  namespace: envoy-gateway-system
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        annotations:
+          metallb.universe.tf/loadBalancerIPs: "192.168.1.212"

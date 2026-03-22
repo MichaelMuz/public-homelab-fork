@@ -5,4 +5,6 @@ metadata:
   namespace: metallb-system
 spec:
   addresses:
-    - 192.168.1.210/31 # reverse proxy + dns only
+    - 192.168.1.210/32 # public reverse proxy
+    - 192.168.1.211/32 # dns
+    - 192.168.1.212/32 # private reverse proxy

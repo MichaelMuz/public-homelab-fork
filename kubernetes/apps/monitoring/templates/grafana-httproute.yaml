@@ -1,3 +1,5 @@
+# ServerSideApply adds defaulted fields (group, kind, weight, matches) to the
+# live resource. Without them here, ArgoCD sees a perpetual diff. Keep verbose.
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -7,19 +9,24 @@ spec:
   parentRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
-      name: eg
+      name: eg-private
       namespace: envoy-gateway-system
-      sectionName: http
+      sectionName: http-admin
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: eg-private
+      namespace: envoy-gateway-system
+      sectionName: https-admin
   hostnames:
-    - "grafana.michaelmuzafarov.dev"
+    - "grafana.admin.michaelmuzafarov.dev"
   rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /
-      backendRefs:
-        - group: ""
+    - backendRefs:
+        - group: ''
           kind: Service
           name: monitoring-grafana
           port: 80
           weight: 1
+      matches:
+        - path:
+            type: PathPrefix
+            value: /

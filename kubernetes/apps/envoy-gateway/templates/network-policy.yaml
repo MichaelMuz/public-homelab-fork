@@ -1,0 +1,46 @@
+# No port restriction — Cilium evaluates ports post-DNAT (pod ports, not service
+# ports), so specifying 80/443 here doesn't match the actual pod ports (10080/10443).
+# Envoy only listens on its configured ports anyway, so port filtering here is redundant.
+
+# tailscale traffic enters as a node so we don't need to specify that ns
+
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-same-namespace
+spec:
+  endpointSelector: {}
+  ingress:
+    - fromEndpoints:
+        - {}
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-private-ingress
+spec:
+  endpointSelector:
+    matchLabels:
+      gateway.envoyproxy.io/owning-gateway-name: eg-private
+  ingress:
+    - fromEndpoints:
+        - {}
+    - fromCIDR:
+        - 172.16.20.0/24
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-public-ingress
+spec:
+  endpointSelector:
+    matchLabels:
+      gateway.envoyproxy.io/owning-gateway-name: eg-public
+  ingress:
+    - fromEndpoints:
+        - {}
+    - fromEntities:
+        - world
+    - fromEndpoints:
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: cloudflare-tunnel

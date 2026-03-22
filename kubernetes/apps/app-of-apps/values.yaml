@@ -30,3 +30,6 @@ applications:
   - name: envoy-gateway
     namespace: envoy-gateway-system
     serverSideApply: true # otherwise crd metadata annotations too long
+  - name: cilium
+    namespace: kube-system
+    serverSideApply: true
