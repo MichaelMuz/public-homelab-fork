@@ -108,7 +108,7 @@ data "talos_cluster_health" "health" {
   endpoints            = data.talos_client_configuration.talosconfig.endpoints
 }
 
-data "talos_cluster_kubeconfig" "kubeconfig" {
+resource "talos_cluster_kubeconfig" "kubeconfig" {
   depends_on           = [talos_machine_bootstrap.bootstrap, data.talos_cluster_health.health]
   client_configuration = talos_machine_secrets.machine_secrets.client_configuration
   node                 = local.bootstrap_node.ip_address

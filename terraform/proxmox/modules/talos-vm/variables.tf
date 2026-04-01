@@ -13,10 +13,11 @@ variable "proxmox_node" {
 
 variable "talos_nodes" {
   type = map(object({
-    ip_address = string
-    disk_size  = number
-    memory     = number
-    cpu_cores  = number
+    ip_address     = string
+    disk_size      = number
+    memory         = number
+    cpu_cores      = number
+    boot_image_url = string
   }))
-  description = "Map of each vm name to its config. Disk and memory are in gb and cpu cores are logical threads"
+  description = "Map of each vm name to its config. Disk and memory are in gb and cpu cores are logical threads. Boot image only represents what was installed, upgrades may have been performed later."
 }

@@ -17,9 +17,11 @@ spec:
     server: https://kubernetes.default.svc
     namespace: {{ .namespace }}
   syncPolicy:
+    {{- if not .suspended }}
     automated:
       prune: true
       selfHeal: true
+    {{- end }}
     syncOptions:
       - CreateNamespace=true
       {{- if .serverSideApply }}

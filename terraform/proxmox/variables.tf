@@ -13,6 +13,7 @@ variable "proxmox_cluster" {
       disk_size        = number
       memory           = number
       cpu_cores        = number
+      boot_image_url   = string
     }))
   }))
   default = {
@@ -25,6 +26,7 @@ variable "proxmox_cluster" {
           disk_size        = 48
           memory           = 6144
           cpu_cores        = 4
+          boot_image_url   = "https://factory.talos.dev/image/787b79bb847a07ebb9ae37396d015617266b1cef861107eaec85968ad7b40618/v1.7.4/nocloud-amd64.raw.gz"
         }
       }
     }
@@ -37,6 +39,7 @@ variable "proxmox_cluster" {
           disk_size        = 37
           memory           = 4096
           cpu_cores        = 3
+          boot_image_url   = "https://factory.talos.dev/image/787b79bb847a07ebb9ae37396d015617266b1cef861107eaec85968ad7b40618/v1.7.4/nocloud-amd64.raw.gz"
         }
         "talos-worker-02" = {
           ip_address       = "192.168.1.204"
@@ -44,6 +47,7 @@ variable "proxmox_cluster" {
           disk_size        = 300
           memory           = 8192
           cpu_cores        = 5
+          boot_image_url   = "https://factory.talos.dev/image/787b79bb847a07ebb9ae37396d015617266b1cef861107eaec85968ad7b40618/v1.7.4/nocloud-amd64.raw.gz"
         }
       }
     }
@@ -53,9 +57,11 @@ variable "proxmox_cluster" {
         "talos-worker-03" = {
           ip_address       = "192.168.1.205"
           is_control_plane = false
-          disk_size        = 900
-          memory           = 9216
+          disk_size        = 750
+          memory           = 6144
           cpu_cores        = 4
+          # cloud factory only advertises .raw.xz but people just replace .xz with .gz https://forum.proxmox.com/threads/cloud-init-using-a-raw-xz-file.158782/
+          boot_image_url   = "https://factory.talos.dev/image/88d1f7a5c4f1d3aba7df787c448c1d3d008ed29cfb34af53fa0df4336a56040b/v1.12.6/nocloud-amd64.raw.gz"
         }
       }
     }
@@ -66,8 +72,9 @@ variable "proxmox_cluster" {
           ip_address       = "192.168.1.206"
           is_control_plane = false
           disk_size        = 900
-          memory           = 9216
+          memory           = 14336
           cpu_cores        = 4
+          boot_image_url   = "https://factory.talos.dev/image/787b79bb847a07ebb9ae37396d015617266b1cef861107eaec85968ad7b40618/v1.7.4/nocloud-amd64.raw.gz"
         }
       }
     }
@@ -80,6 +87,7 @@ variable "proxmox_cluster" {
           disk_size        = 100
           memory           = 3072
           cpu_cores        = 1
+          boot_image_url   = "https://factory.talos.dev/image/787b79bb847a07ebb9ae37396d015617266b1cef861107eaec85968ad7b40618/v1.7.4/nocloud-amd64.raw.gz"
         }
         "talos-worker-05" = {
           ip_address       = "192.168.1.208"
@@ -87,6 +95,7 @@ variable "proxmox_cluster" {
           disk_size        = 800
           memory           = 3072
           cpu_cores        = 3
+          boot_image_url   = "https://factory.talos.dev/image/787b79bb847a07ebb9ae37396d015617266b1cef861107eaec85968ad7b40618/v1.7.4/nocloud-amd64.raw.gz"
         }
       }
     }

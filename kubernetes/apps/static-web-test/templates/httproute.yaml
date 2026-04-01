@@ -7,9 +7,6 @@ spec:
   parentRefs:
     - name: eg-public
       namespace: envoy-gateway-system
-      sectionName: http-public
-    - name: eg-public
-      namespace: envoy-gateway-system
       sectionName: https-public
   hostnames:
     - "michaelmuzafarov.dev"

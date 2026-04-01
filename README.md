@@ -8,7 +8,7 @@ If you want to be a user let me know, I am happy to share.
 
 You are probably reading this on my public homelab fork - I update it periodically to show off some progress but the main repo isn't public so I don't leak a secret or something.
 
-Below is a walkthrough of my home network and how I have structured it. This is the state I am envisioning, still a work in progress and I haven't punched a hole through my firewall yet. If you have comments feel free to let me know.
+Below is a walkthrough of my home network and how I have structured it.
 
 ## Network topology
 
@@ -16,7 +16,7 @@ Below is a walkthrough of my home network and how I have structured it. This is 
 
 - OPNsense segments network into homelab LAN (`192.168.1.0/24`) and personal LAN (`172.16.20.0/24`)
 - Personal subnet can reach the homelab for admin access, but the homelab cannot initiate connections to personal subnet
-- WAN forwards port 443 to public Envoy gateway (`192.168.1.210`); all other inbound WAN traffic is blocked
+- WAN forwards port 443 (HTTPS) and 6881 (BitTorrent) to public Envoy gateway (`192.168.1.210`); all other inbound WAN traffic is blocked
 
 ## Cluster architecture
 
@@ -27,8 +27,9 @@ Below is a walkthrough of my home network and how I have structured it. This is 
 - Public apps only reachable through public Envoy, admin apps only through the private Envoy
 - Admin services are password-less, network position is credential
 - Public (`*michaelmuzafarov.dev`) domain/s resolves to public Envoy IP
-- OPNsense and tailscale's 'magic dns' forward `admin.michaelmuzafarov.dev` lookups to in-cluster CoreDNS (`192.168.1.211`)
+- OPNsense and Tailscale Magic DNS forward `michaelmuzafarov.dev` lookups to in-cluster CoreDNS (`192.168.1.211`), which routes admin subdomains to the private Envoy and everything else to the public Envoy
 - TLS terminates at the Envoy gateways; all pod-to-pod traffic is WireGuard encrypted via Cilium; etcd secrets encrypted at rest with secretbox;
+- Auth endpoints on public apps are rate limited via BackendTrafficPolicy
 - Only controlled egress is a deny to Proxmox management IPs; all other egress is unrestricted
 - Nodes run Talos OS - immutable, hardened, no ssh access, designed for k8s
 - Many more admin and public apps beyond what is shown

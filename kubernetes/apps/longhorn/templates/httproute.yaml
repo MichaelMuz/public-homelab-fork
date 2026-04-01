@@ -1,16 +1,16 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: argocd-server
-  namespace: argocd
+  name: longhorn
+  namespace: longhorn-system
 spec:
   parentRefs:
     - name: eg-private
       namespace: envoy-gateway-system
       sectionName: https-admin
   hostnames:
-    - "argocd.admin.michaelmuzafarov.dev"
+    - "longhorn.admin.michaelmuzafarov.dev"
   rules:
     - backendRefs:
-        - name: argocd-server
+        - name: longhorn-frontend
           port: 80

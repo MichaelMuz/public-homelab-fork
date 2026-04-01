@@ -18,12 +18,6 @@ spec:
       kind: EnvoyProxy
       name: envoy-proxy-public-config
   listeners:
-    - name: http-public
-      protocol: HTTP
-      port: 80
-      allowedRoutes:
-        namespaces:
-          from: All
     - name: https-public
       protocol: HTTPS
       port: 443
@@ -36,6 +30,18 @@ spec:
           - kind: Secret
             name: wildcard-cert
             group: ""
+    - name: tcp-qbittorrent
+      protocol: TCP
+      port: 6881
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: udp-qbittorrent
+      protocol: UDP
+      port: 6881
+      allowedRoutes:
+        namespaces:
+          from: All
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
@@ -50,13 +56,6 @@ spec:
       kind: EnvoyProxy
       name: envoy-proxy-private-config
   listeners:
-    - name: http-admin
-      hostname: "*.admin.michaelmuzafarov.dev"
-      protocol: HTTP
-      port: 80
-      allowedRoutes:
-        namespaces:
-          from: All
     - name: https-admin
       hostname: "*.admin.michaelmuzafarov.dev"
       protocol: HTTPS
@@ -70,27 +69,3 @@ spec:
           - kind: Secret
             name: wildcard-cert
             group: ""
----
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: SecurityPolicy
-metadata:
-  name: admin-route-ip-restriction
-  namespace: envoy-gateway-system
-spec:
-  targetRefs:
-    - group: gateway.networking.k8s.io
-      kind: Gateway
-      name: eg-private
-      sectionName: http-admin
-    - group: gateway.networking.k8s.io
-      kind: Gateway
-      name: eg-private
-      sectionName: https-admin
-  authorization:
-    defaultAction: Deny
-    rules:
-      - action: Allow
-        principal:
-          clientCIDRs:
-            - 192.168.1.0/24
-            - 172.16.20.0/24

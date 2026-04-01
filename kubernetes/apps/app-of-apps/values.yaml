@@ -12,8 +12,6 @@ applications:
   - name: cloudnative-pg
     namespace: cnpg-system
     serverSideApply: true # otherwise metadata annotations too long
-  - name: cloudflare-tunnel
-    namespace: cloudflare-tunnel
   - name: tailscale
     namespace: tailscale-system
   - name: monitoring
@@ -27,6 +25,8 @@ applications:
     namespace: immich
   - name: cert-manager
     namespace: cert-manager
+  - name: cloudflare-ddns
+    namespace: cloudflare-ddns
   - name: envoy-gateway
     namespace: envoy-gateway-system
     serverSideApply: true # otherwise crd metadata annotations too long

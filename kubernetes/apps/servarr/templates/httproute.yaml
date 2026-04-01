@@ -7,9 +7,6 @@ spec:
   parentRefs:
     - name: eg-public
       namespace: envoy-gateway-system
-      sectionName: http-public
-    - name: eg-public
-      namespace: envoy-gateway-system
       sectionName: https-public
   hostnames:
     - "jellyfin.michaelmuzafarov.dev"
@@ -21,21 +18,18 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: jellyseerr
+  name: seerr
   namespace: servarr
 spec:
   parentRefs:
     - name: eg-private
       namespace: envoy-gateway-system
-      sectionName: http-admin
-    - name: eg-private
-      namespace: envoy-gateway-system
       sectionName: https-admin
   hostnames:
-    - "jellyseerr.admin.michaelmuzafarov.dev"
+    - "seerr.admin.michaelmuzafarov.dev"
   rules:
     - backendRefs:
-        - name: servarr-jellyseerr
+        - name: servarr-seerr
           port: 5055
 ---
 apiVersion: gateway.networking.k8s.io/v1
@@ -45,9 +39,6 @@ metadata:
   namespace: servarr
 spec:
   parentRefs:
-    - name: eg-private
-      namespace: envoy-gateway-system
-      sectionName: http-admin
     - name: eg-private
       namespace: envoy-gateway-system
       sectionName: https-admin
@@ -67,9 +58,6 @@ spec:
   parentRefs:
     - name: eg-private
       namespace: envoy-gateway-system
-      sectionName: http-admin
-    - name: eg-private
-      namespace: envoy-gateway-system
       sectionName: https-admin
   hostnames:
     - "sonarr.admin.michaelmuzafarov.dev"
@@ -85,9 +73,6 @@ metadata:
   namespace: servarr
 spec:
   parentRefs:
-    - name: eg-private
-      namespace: envoy-gateway-system
-      sectionName: http-admin
     - name: eg-private
       namespace: envoy-gateway-system
       sectionName: https-admin
@@ -107,9 +92,6 @@ spec:
   parentRefs:
     - name: eg-private
       namespace: envoy-gateway-system
-      sectionName: http-admin
-    - name: eg-private
-      namespace: envoy-gateway-system
       sectionName: https-admin
   hostnames:
     - "qbittorrent.admin.michaelmuzafarov.dev"
@@ -127,9 +109,6 @@ spec:
   parentRefs:
     - name: eg-private
       namespace: envoy-gateway-system
-      sectionName: http-admin
-    - name: eg-private
-      namespace: envoy-gateway-system
       sectionName: https-admin
   hostnames:
     - "bazarr.admin.michaelmuzafarov.dev"
@@ -137,3 +116,50 @@ spec:
     - backendRefs:
         - name: servarr-bazarr
           port: 6767
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: lidarr
+  namespace: servarr
+spec:
+  parentRefs:
+    - name: eg-private
+      namespace: envoy-gateway-system
+      sectionName: https-admin
+  hostnames:
+    - "lidarr.admin.michaelmuzafarov.dev"
+  rules:
+    - backendRefs:
+        - name: servarr-lidarr
+          port: 8686
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: qbittorrent-bt
+  namespace: servarr
+spec:
+  parentRefs:
+    - name: eg-public
+      namespace: envoy-gateway-system
+      sectionName: tcp-qbittorrent
+  rules:
+    - backendRefs:
+        - name: servarr-qbittorrent-bt
+          port: 6881
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: UDPRoute
+metadata:
+  name: qbittorrent-bt-udp
+  namespace: servarr
+spec:
+  parentRefs:
+    - name: eg-public
+      namespace: envoy-gateway-system
+      sectionName: udp-qbittorrent
+  rules:
+    - backendRefs:
+        - name: servarr-qbittorrent-bt
+          port: 6881

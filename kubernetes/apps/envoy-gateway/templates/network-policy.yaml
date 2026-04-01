@@ -2,8 +2,6 @@
 # ports), so specifying 80/443 here doesn't match the actual pod ports (10080/10443).
 # Envoy only listens on its configured ports anyway, so port filtering here is redundant.
 
-# tailscale traffic enters as a node so we don't need to specify that ns
-
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
@@ -25,6 +23,8 @@ spec:
   ingress:
     - fromEndpoints:
         - {}
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: tailscale-system
     - fromCIDR:
         - 172.16.20.0/24
 ---
@@ -41,6 +41,3 @@ spec:
         - {}
     - fromEntities:
         - world
-    - fromEndpoints:
-        - matchLabels:
-            k8s:io.kubernetes.pod.namespace: cloudflare-tunnel

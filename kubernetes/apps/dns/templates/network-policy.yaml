@@ -10,4 +10,6 @@ spec:
         - matchLabels:
             k8s:io.kubernetes.pod.namespace: tailscale-system
     - fromEntities:
+        # world is fine here because this is just a lookup to my yaml config
+        # trying to restrict ingress here leads to complication. Router does not forward to this anyway
         - world

@@ -7,8 +7,9 @@ resource "proxmox_virtual_environment_vm" "talos_vms" {
   on_boot     = true
 
   cpu {
-    cores = each.value.cpu_cores
-    type  = "host"
+    cores        = each.value.cpu_cores
+    type         = "host"
+    architecture = "x86_64"
   }
 
   memory {
@@ -25,7 +26,7 @@ resource "proxmox_virtual_environment_vm" "talos_vms" {
 
   disk {
     datastore_id = "local-lvm"
-    file_id      = proxmox_virtual_environment_download_file.talos_nocloud_image.id
+    file_id      = proxmox_virtual_environment_download_file.talos_nocloud_image[local.vm_to_boot_info[each.key].version].id
     file_format  = "raw"
     interface    = "virtio0"
     size         = each.value.disk_size

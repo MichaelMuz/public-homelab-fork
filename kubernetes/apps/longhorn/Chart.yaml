@@ -3,5 +3,7 @@ name: longhorn
 version: 1.0.0
 dependencies:
   - name: longhorn
-    version: "1.9.1"
+    # Upgrades cannot skip minor versions
+    # https://longhorn.io/docs/1.11.1/deploy/upgrade/
+    version: "1.11.1"
     repository: "https://charts.longhorn.io"

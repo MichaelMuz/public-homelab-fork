@@ -2,9 +2,17 @@ cilium:
   ipam:
     mode: kubernetes
   kubeProxyReplacement: true
+  socketLB:
+    # This is needed bc tailscale acts like a router so cilium didn't rewrite at `connect` call
+    # we need rewrite to happen at network interface
+    hostNamespaceOnly: true
   k8sServiceHost: localhost
   k8sServicePort: 7445
   securityContext:
+    # Must override this because talos doesn't allow SYS_MODULE on clean cilium state
+    # https://docs.siderolabs.com/kubernetes-guides/cni/deploying-cilium
+    # Copied all other defaults from:
+    # https://github.com/cilium/cilium/blob/d0d0c8792c3420b3a6739fa21e3a182827a0bbc6/install/kubernetes/cilium/values.yaml#L339
     capabilities:
       ciliumAgent:
         - CHOWN
@@ -18,6 +26,7 @@ cilium:
         - FOWNER
         - SETGID
         - SETUID
+        - SYSLOG
       cleanCiliumState:
         - NET_ADMIN
         - SYS_ADMIN
@@ -26,6 +35,14 @@ cilium:
     autoMount:
       enabled: false
     hostRoot: /sys/fs/cgroup
+  l7Proxy: false
+  envoy:
+    enabled: false
   encryption:
     enabled: true
     type: wireguard
+  hubble:
+    relay:
+      enabled: true
+    ui:
+      enabled: true

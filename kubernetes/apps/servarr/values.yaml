@@ -2,7 +2,8 @@ servarr:
   jellyfin:
     persistence:
       media:
-        size: 20Gi
+        size: 100Gi
+        accessMode: ReadWriteMany
     tailscale:
       enabled: false
   sonarr:
@@ -20,17 +21,9 @@ servarr:
   lidarr:
     env:
       TZ: America/New_York
-  readarr:
-    env:
-      TZ: America/New_York
-  # cleanuperr:
-  #   enabled: true
-  #   image:
-  #     repository: ghcr.io/cleanuparr/cleanuparr # repo name changed
-  #   secrets:
-  #     existingSecret: "qbittorrent-credentials"
-  #   env:
-  #     TZ: America/New_York
+  seerr:
+    podSecurityContext:
+      fsGroup: 1000
   qbittorrent:
     env:
       TZ: America/New_York

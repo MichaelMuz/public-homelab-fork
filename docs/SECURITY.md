@@ -2,14 +2,16 @@
 
 ## Physical network
 
-Two isolated subnets behind OPNsense. Homelab cannot initiate to personal, personal can reach homelab for admin access. WAN blocks all inbound. No ports forwarded yet. SSH is key-only everywhere (OPNsense, all Proxmox nodes). Admin GUIs (OPNsense, Proxmox) use passwords. OPNsense web GUI on personal interface only (igc2).
+Two isolated subnets behind OPNsense. Homelab cannot initiate to personal, personal can reach homelab for admin access. SSH is key-only everywhere (OPNsense, all Proxmox nodes). Admin GUIs (OPNsense, Proxmox) use passwords. OPNsense web GUI on personal interface only (igc2).
+
+WAN port forwards: TCP 443 and 6881 (all protocols) → 192.168.1.210 (public Envoy). Destination NAT rules + manual WAN pass rules. Logging disabled on OPNsense — Envoy handles access logging in-cluster.
 
 ## Ingress to the cluster
 
-- **Public Envoy** (192.168.1.210): `*.michaelmuzafarov.dev`. World, cluster nodes, Cloudflare Tunnel.
-- **Private Envoy** (192.168.1.212): `*.admin.michaelmuzafarov.dev`. Cluster nodes (Tailscale), personal subnet (172.16.20.0/24).
+- **Public Envoy** (192.168.1.210): `*.michaelmuzafarov.dev`. World and cluster nodes.
+- **Private Envoy** (192.168.1.212): `*.admin.michaelmuzafarov.dev`. `tailscale-system`, personal subnet (172.16.20.0/24).
 
-Cloudflare Tunnel with Zero Trust (Google SSO) still active for remote access to public services. Tailscale for remote admin.
+Tailscale for remote admin. Auth endpoints on public apps are rate limited via BackendTrafficPolicy to mitigate brute force.
 
 ## Encryption
 
@@ -19,25 +21,21 @@ All cross-node pod traffic is encrypted via Cilium WireGuard. Control plane uses
 
 Default deny ingress, explicit allow. Egress unrestricted except to Proxmox management IPs (denied clusterwide). Enforcement at namespace level — same namespace can talk, cross-namespace requires explicit allow. kube-system excluded from ingress policy, included in egress deny.
 
-Cilium L4 enforcement on the Envoy pods uses the `gateway.envoyproxy.io/owning-gateway-name` label to target each proxy independently. Envoy SecurityPolicy on the private gateway filters by source IP.
+Cilium L4 enforcement on the Envoy pods uses the `gateway.envoyproxy.io/owning-gateway-name` label to target each proxy independently. `socketLB.hostNamespaceOnly` is required — the Tailscale Connector is a router, so service IP translation must happen at the network interface, not the socket layer.
 
 ## Traffic source IPs as seen by Envoy
 
 - **Home direct (172.16.20.0/24):** Real client IP preserved through OPNsense DNAT. Envoy sees `172.16.20.x`.
-- **Tailscale:** Appears as the node IP of whatever host the Tailscale pod runs on. Envoy sees `192.168.1.x`. Matches `remote-node` entity in Cilium.
-- **Cloudflare Tunnel:** Appears as the pod IP from the cloudflare-tunnel namespace. Envoy sees `10.244.x.x`. CF tunnel only routes to the public Envoy.
+- **Tailscale:** Connector pod forwards traffic. Envoy sees the pod IP (`10.244.x.x`). Cilium enforces access by namespace identity, not source IP.
 
 ## Admin access strategy
 
-Admin services (`*.admin.michaelmuzafarov.dev`) are restricted at two layers:
-1. **Cilium L4:** Only remote-node and 172.16.20.0/24 can reach the private Envoy pods.
-2. **Envoy SecurityPolicy:** Allows 192.168.1.0/24 and 172.16.20.0/24.
+Admin services (`*.admin.michaelmuzafarov.dev`) restricted by Cilium L4 — only allowed namespaces and CIDRs reach the private Envoy. Passwordless — network position is the credential.
 
-Passwordless — network position is the credential.
+## Observability
 
-## What is not yet done
+Hubble Relay and UI enabled. `hubble observe --verdict DROPPED -f` for live policy drops cluster-wide. Ring buffer is small — always stream live, don't query history.
 
-- Port forwarding (WAN 443 only → 192.168.1.210)
-- DNS cutover (Cloudflare CNAME → A record)
-- Drop HTTP entirely — only expose port 443, no port 80 listener
-- Cloudflare Tunnel retirement (remove remaining CF tunnel Cilium rules and tunnel infrastructure)
+## DNS
+
+Cloudflare hosts the `michaelmuzafarov.dev` zone. A `cloudflare-ddns` pod (favonia/cloudflare-ddns) runs in-cluster and updates the `michaelmuzafarov.dev` and `*.michaelmuzafarov.dev` A records every 5 minutes. It detects the WAN IP by querying Cloudflare's own `cdn-cgi/trace` endpoint over HTTPS — no third-party IP services, no plaintext HTTP. Records are unproxied (DNS only) so Cloudflare does not terminate TLS or inspect traffic.
