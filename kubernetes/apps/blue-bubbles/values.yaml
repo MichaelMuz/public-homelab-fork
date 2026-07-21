@@ -1,0 +1,4 @@
+ingest:
+  image:
+    name: ghcr.io/michaelmuz/blue-bubbles-ingest
+    tag: latest

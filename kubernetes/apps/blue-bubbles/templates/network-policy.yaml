@@ -1,7 +1,8 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: allow-from-envoy-gateway
+  name: blue-bubbles
+  namespace: blue-bubbles
 spec:
   endpointSelector: {}
   ingress:

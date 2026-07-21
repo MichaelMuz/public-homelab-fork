@@ -1,0 +1,88 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: hermes-agent-view-extras
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "persistentvolumes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses", "volumeattachments"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["cert-manager.io"]
+    resources: ["clusterissuers"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["postgresql.cnpg.io"]
+    resources: ["clusters", "backups", "scheduledbackups"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["metallb.io"]
+    resources: ["ipaddresspools", "l2advertisements", "servicel2statuses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["gateway.envoyproxy.io"]
+    resources: ["envoyproxies", "backendtrafficpolicies"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["tailscale.com"]
+    resources: ["connectors"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["argoproj.io"]
+    resources: ["applications", "appprojects"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["longhorn.io"]
+    resources:
+      - "volumes"
+      - "nodes"
+      - "engines"
+      - "replicas"
+      - "snapshots"
+      - "settings"
+      - "recurringjobs"
+      - "backups"
+      - "backuptargets"
+      - "volumeattachments"
+      - "instancemanagers"
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["cilium.io"]
+    resources:
+      - "ciliumnetworkpolicies"
+      - "ciliumclusterwidenetworkpolicies"
+      - "ciliumendpoints"
+      - "ciliumnodes"
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["gateway.networking.k8s.io"]
+    resources: ["gatewayclasses", "gateways", "httproutes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["bitnami.com"]
+    resources: ["sealedsecrets"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hermes-agent-view-extras
+subjects:
+  - kind: ServiceAccount
+    name: hermes-agent
+    namespace: hermes-agent
+roleRef:
+  kind: ClusterRole
+  name: hermes-agent-view-extras
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hermes-agent-view
+subjects:
+  - kind: ServiceAccount
+    name: hermes-agent
+    namespace: hermes-agent
+roleRef:
+  kind: ClusterRole
+  name: view
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hermes-agent
+  namespace: hermes-agent

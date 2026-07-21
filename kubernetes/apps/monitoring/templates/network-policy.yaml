@@ -1,7 +1,8 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: allow-from-envoy-gateway
+  name: monitoring
+  namespace: monitoring
 spec:
   endpointSelector: {}
   ingress:

@@ -10,8 +10,8 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: git@github.com:MichaelMuz/homelab.git
-    targetRevision: HEAD
+    repoURL: git@gitlab.com:michael-muzafarov/homelab.git
+    targetRevision: main
     path: kubernetes/apps/{{ .name }}
   destination:
     server: https://kubernetes.default.svc

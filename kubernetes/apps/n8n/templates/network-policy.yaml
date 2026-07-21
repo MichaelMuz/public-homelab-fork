@@ -1,0 +1,14 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: n8n
+  namespace: n8n
+spec:
+  endpointSelector: {}
+  ingress:
+    - fromEndpoints:
+        - {}
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: envoy-gateway-system
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: cnpg-system

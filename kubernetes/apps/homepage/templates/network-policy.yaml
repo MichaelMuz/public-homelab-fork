@@ -1,0 +1,12 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: homepage
+  namespace: homepage
+spec:
+  endpointSelector: {}
+  ingress:
+    - fromEndpoints:
+        - {}
+        - matchLabels:
+            k8s:io.kubernetes.pod.namespace: envoy-gateway-system

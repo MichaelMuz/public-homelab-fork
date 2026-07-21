@@ -1,5 +1,10 @@
 kube-prometheus-stack:
   grafana:
+    admin:
+      existingSecret: grafana-admin-credentials
+      userKey: admin-user
+      passwordKey: admin-password
+
     additionalDataSources:
       - name: Loki
         type: loki
@@ -11,6 +16,8 @@ kube-prometheus-stack:
 
   prometheus:
     prometheusSpec:
+      # Without this Prometheus discovers every ServiceMonitor but only scrapes its own (release-label match)
+      serviceMonitorSelectorNilUsesHelmValues: false
       retention: 10d
       storageSpec:
         volumeClaimTemplate:

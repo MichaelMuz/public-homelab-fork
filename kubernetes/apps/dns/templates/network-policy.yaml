@@ -1,7 +1,8 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: allow-ingress
+  name: dns
+  namespace: dns
 spec:
   endpointSelector: {}
   ingress:

@@ -1,7 +1,8 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: allow-same-namespace
+  name: cloudnative-pg
+  namespace: cnpg-system
 spec:
   endpointSelector: {}
   ingress:

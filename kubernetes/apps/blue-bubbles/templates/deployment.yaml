@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blue-bubbles-ingest
+  namespace: blue-bubbles
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blue-bubbles-ingest
+  template:
+    metadata:
+      labels:
+        app: blue-bubbles-ingest
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: ingest
+          image: "{{ .Values.ingest.image.name }}:{{ .Values.ingest.image.tag }}" # defaults in values.yaml, digests pinned by image-updater
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

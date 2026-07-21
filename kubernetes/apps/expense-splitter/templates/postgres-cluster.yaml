@@ -1,0 +1,28 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: expense-splitter-db
+  namespace: expense-splitter
+spec:
+  instances: 3
+
+  minSyncReplicas: 1
+  maxSyncReplicas: 1
+
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
+    podAntiAffinityType: required
+
+  replicationSlots:
+    highAvailability:
+      enabled: true
+
+  storage:
+    size: 5Gi
+    storageClass: longhorn-pg-single-replica
+
+  bootstrap:
+    initdb:
+      database: expense_splitter
+      owner: app

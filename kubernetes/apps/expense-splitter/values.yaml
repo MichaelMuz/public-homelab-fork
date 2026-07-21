@@ -1,0 +1,8 @@
+backend:
+  image:
+    name: ghcr.io/michaelmuz/expense-splitter-backend
+    tag: latest
+frontend:
+  image:
+    name: ghcr.io/michaelmuz/expense-splitter-frontend
+    tag: latest

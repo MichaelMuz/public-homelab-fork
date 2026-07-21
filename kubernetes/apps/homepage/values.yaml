@@ -1,0 +1,78 @@
+image:
+  repository: nginxinc/nginx-unprivileged
+  tag: 1.30.3-alpine3.23-slim
+
+page:
+  title: Homelab
+  description: Links to services and tools
+
+groups:
+  - name: Public Services
+    links:
+      - name: Blog
+        url: https://blog.michaelmuzafarov.dev
+        description: Personal blog
+      - name: Splitr
+        url: https://splitr.michaelmuzafarov.dev
+        description: Expense splitter
+      - name: Immich
+        url: https://immich.michaelmuzafarov.dev
+        description: Photo library
+      - name: Jellyfin
+        url: https://jellyfin.michaelmuzafarov.dev
+        description: Media streaming
+  - name: Cluster Operations
+    links:
+      - name: Argo CD
+        url: https://argocd.admin.michaelmuzafarov.dev
+        description: GitOps controller
+      - name: Longhorn
+        url: https://longhorn.admin.michaelmuzafarov.dev
+        description: Distributed storage
+      - name: Hubble
+        url: https://hubble.admin.michaelmuzafarov.dev
+        description: Network visibility
+  - name: Observability
+    links:
+      - name: Grafana
+        url: https://grafana.admin.michaelmuzafarov.dev
+        description: Metrics dashboards
+  - name: Personal Tools
+    links:
+      - name: Quiz
+        url: "https://quiz.admin.michaelmuzafarov.dev"
+        description: Learning quiz
+  - name: Media Admin
+    links:
+      - name: Seerr
+        url: https://seerr.admin.michaelmuzafarov.dev
+        description: Media requests
+      - name: Prowlarr
+        url: https://prowlarr.admin.michaelmuzafarov.dev
+        description: Indexer management
+      - name: Sonarr
+        url: https://sonarr.admin.michaelmuzafarov.dev
+        description: Series automation
+      - name: Radarr
+        url: https://radarr.admin.michaelmuzafarov.dev
+        description: Movie automation
+      - name: qBittorrent
+        url: https://qbittorrent.admin.michaelmuzafarov.dev
+        description: Torrent client
+      - name: Bazarr
+        url: https://bazarr.admin.michaelmuzafarov.dev
+        description: Subtitle automation
+      - name: Lidarr
+        url: https://lidarr.admin.michaelmuzafarov.dev
+        description: Music automation
+  - name: Automation and Agents
+    links:
+      - name: Hermes Dashboard
+        url: https://hermes-dashboard.admin.michaelmuzafarov.dev
+        description: Agent dashboard
+      - name: Hermes OpenAI API
+        url: https://hermes-openai-api.admin.michaelmuzafarov.dev
+        description: OpenAI-compatible API
+      - name: n8n
+        url: https://n8n.admin.michaelmuzafarov.dev
+        description: Workflow automation

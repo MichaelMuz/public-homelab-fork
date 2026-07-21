@@ -1,0 +1,12 @@
+image:
+  repository: docker.io/searxng/searxng
+  tag: 2026.7.12-c19d86faa
+  digest: sha256:fb4a500b95b29304b2e08b2bd4162a41ef805f6ade98e6075d12187b9fde3639
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 1
+    memory: 1Gi

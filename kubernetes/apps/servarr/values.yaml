@@ -1,5 +1,13 @@
 servarr:
   jellyfin:
+    extraVolumes:
+      # Errored streams build this cache up to the point of filling any pvc. This way k8s will kill the pod if it uses up all this cache and we don't persist garbage in a pvc
+      - name: transcode-cache
+        emptyDir:
+          sizeLimit: 5Gi
+    extraVolumeMounts:
+      - name: transcode-cache
+        mountPath: /config/cache/transcodes
     persistence:
       media:
         size: 100Gi

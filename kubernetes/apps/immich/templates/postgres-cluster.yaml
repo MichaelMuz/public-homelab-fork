@@ -4,10 +4,23 @@ metadata:
   name: immich-database
   namespace: immich
 spec:
-  instances: 1
+  instances: 3
+
+  minSyncReplicas: 1
+  maxSyncReplicas: 1
+
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
+    podAntiAffinityType: required
+
+  replicationSlots:
+    highAvailability:
+      enabled: true
 
   storage:
     size: 10Gi
+    storageClass: longhorn-pg-single-replica
 
   imageName: ghcr.io/tensorchord/cloudnative-vectorchord:16.9-0.4.3
 

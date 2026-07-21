@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: blue-bubbles-ingest
+  namespace: blue-bubbles
+spec:
+  selector:
+    app: blue-bubbles-ingest
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

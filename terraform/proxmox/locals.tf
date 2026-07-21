@@ -20,4 +20,21 @@ locals {
   bootstrap_node_name        = keys(local.control_plane_nodes)[0]
   bootstrap_node             = local.control_plane_nodes[local.bootstrap_node_name]
   cluster_bootstrap_endpoint = "https://${local.bootstrap_node.ip_address}:6443"
+
+  disk_device_letters = "abcdefghijklmnopqrstuvwxyz"
+
+  # Extra Longhorn disks per worker, in guest device order (lvm_disks then pass_through_disks).
+  worker_disks = {
+    for name, config in local.worker_nodes : name => [
+      for idx, disk in concat(
+        [for d in config.lvm_disks : { tags = [d.tier] }],
+        [for d in config.pass_through_disks : { tags = [d.tier] }],
+        ) : {
+        # vda=boot, then these in order (virtio, see modules/talos-vm), so idx -> /dev/vd<letter(idx+1)>.
+        device     = "/dev/vd${substr(local.disk_device_letters, idx + 1, 1)}"
+        mountpoint = "/var/mnt/longhorn-${idx}"
+        tags       = disk.tags
+      }
+    ]
+  }
 }

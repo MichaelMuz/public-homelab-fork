@@ -91,6 +91,34 @@ resource "talos_machine_configuration_apply" "worker_config_apply" {
   client_configuration        = talos_machine_secrets.machine_secrets.client_configuration
   machine_configuration_input = data.talos_machine_configuration.machineconfig_worker.machine_configuration
   node                        = each.value.ip_address
+
+  config_patches = length(local.worker_disks[each.key]) == 0 ? null : [
+    yamlencode({
+      machine = {
+        # Mount this node's extra disks and register them with Longhorn.
+        disks = [
+          for disk in local.worker_disks[each.key] : {
+            device     = disk.device
+            partitions = [{ mountpoint = disk.mountpoint }]
+          }
+        ]
+        nodeLabels = {
+          # Setting tells longhorn that the below `default-disks-config` contains disks to adopt
+          "node.longhorn.io/create-default-disk" = "config"
+        }
+        nodeAnnotations = {
+          "node.longhorn.io/default-disks-config" = jsonencode([
+            for disk in local.worker_disks[each.key] : {
+              path            = disk.mountpoint
+              allowScheduling = true
+              storageReserved = 0 # longhorn default settings seem to override this. Could be the more conservative number wins
+              tags            = disk.tags
+            }
+          ])
+        }
+      }
+    })
+  ]
 }
 
 resource "talos_machine_bootstrap" "bootstrap" {

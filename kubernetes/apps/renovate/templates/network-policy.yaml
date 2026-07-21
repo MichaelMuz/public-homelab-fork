@@ -1,0 +1,10 @@
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: renovate
+  namespace: renovate
+spec:
+  endpointSelector: {}
+  ingress:
+    - fromEndpoints:
+        - {}

@@ -6,8 +6,8 @@ argo-cd:
     app-of-apps:
       project: default
       source:
-        repoURL: git@github.com:MichaelMuz/homelab.git
-        targetRevision: HEAD
+        repoURL: git@gitlab.com:michael-muzafarov/homelab.git
+        targetRevision: main
         path: kubernetes/apps/app-of-apps
       destination:
         server: https://kubernetes.default.svc

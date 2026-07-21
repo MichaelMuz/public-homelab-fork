@@ -29,7 +29,31 @@ resource "proxmox_virtual_environment_vm" "talos_vms" {
     file_id      = proxmox_virtual_environment_download_file.talos_nocloud_image[local.vm_to_boot_info[each.key].version].id
     file_format  = "raw"
     interface    = "virtio0"
-    size         = each.value.disk_size
+    size         = each.value.boot_disk_size
+  }
+
+  dynamic "disk" {
+    # Sized volumes carved from the local-lvm thin pool
+    for_each = each.value.lvm_disks
+    content {
+      datastore_id = "local-lvm"
+      file_format  = "raw"
+      # Interface starts at virtio1 (virtio0 is boot).
+      interface = "virtio${disk.key + 1}"
+      size      = disk.value.size
+    }
+  }
+
+  dynamic "disk" {
+    for_each = each.value.pass_through_disks
+    content {
+      # Whole host block devices passed straight through (no datastore, no size).
+      datastore_id      = ""
+      path_in_datastore = disk.value.by_id_path
+      file_format       = "raw"
+      # interface is offset past boot + all lvm_disks so the two lists never collide.
+      interface = "virtio${disk.key + 1 + length(each.value.lvm_disks)}"
+    }
   }
 
   operating_system {

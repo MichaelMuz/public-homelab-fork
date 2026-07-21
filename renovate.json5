@@ -1,0 +1,59 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)"
+  ],
+
+  "rangeStrategy": "bump",
+  "rebaseWhen": "conflicted",
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 5,
+  "draftPR": true,
+  "labels": ["dependencies", "renovate"],
+  "assignees": ["hermes-muzafarov"],
+
+  "packageRules": [
+    {
+      "description": "Mark major updates as higher risk for explicit human review",
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["risk/major-upgrade"]
+    },
+    {
+      "description": "Keep availability reminder MRs separate from deployable dependency changes",
+      "matchFileNames": ["docs/VERSIONS.md"],
+      "separateMinorPatch": true
+    },
+    {
+      "description": "Update both Actions Runner Controller charts together",
+      "matchPackageNames": [
+        "ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set",
+        "ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller"
+      ],
+      "groupName": "Actions Runner Controller",
+      "minimumGroupSize": 2
+    }
+  ],
+
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track available Talos and Kubernetes versions without changing recorded live state",
+      "managerFilePatterns": ["/^docs\\/VERSIONS\\.md$/"],
+      "matchStrings": [
+        "<!-- renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>[^\\s]+) versioning=(?<versioning>[^\\s]+) -->\\s*\\| [^|]+ \\| [^|]+ \\|\\s*(?<currentValue>[^\\s|]+)\\s*\\|"
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "Track literal container image pins in Kubernetes app manifests and Helm templates",
+      "managerFilePatterns": ["/^kubernetes\\/apps\\/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "image:\\s+\\\"?(?<depName>(?:[a-zA-Z0-9.-]+(?::[0-9]+)?/)?[a-zA-Z0-9._/-]+):(?<currentValue>[^\\s\\\"'@{}]+)\\\"?"
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{{- range .Values.applications }}
+{{- if .continuousDelivery }}
+---
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: {{ .name }}
+  namespace: argocd
+spec:
+  applicationRefs:
+    - namePattern: "{{ .name }}"
+      useAnnotations: false
+      images:
+        {{- range .continuousDelivery }}
+        - alias: {{ .name }}
+          imageName: "{{ .image }}:{{ .tag }}"
+          commonUpdateSettings:
+            updateStrategy: digest
+          manifestTargets: # which helm param keys to write new digests to
+            helm:
+              name: {{ .name }}.image.name
+              tag: {{ .name }}.image.tag
+        {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,14 @@
+# Generally I don't use storage classes bc you need to write the number of replicas here, not in pvc.
+# This means if you change storage class to change num replicas you get your data deleted.
+# I made this one just because cnpg handles its own replicas so I won't need to change it.
+# Other replica counts are handled in the ui, only pg gets a special one.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: longhorn-pg-single-replica
+provisioner: driver.longhorn.io
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  numberOfReplicas: "1"
+  dataLocality: "strict-local"
+  diskSelector: "hdd"

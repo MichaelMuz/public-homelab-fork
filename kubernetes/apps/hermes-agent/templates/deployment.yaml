@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes-agent
+  namespace: hermes-agent
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: hermes-agent
+  template:
+    metadata:
+      labels:
+        app: hermes-agent
+    spec:
+      automountServiceAccountToken: true
+      serviceAccountName: hermes-agent
+      # run directly as the image's hermes user instead of root-init dropping to it:
+      # fsGroup does s6's volume chown, so its root-only stage2 steps fail-safe / no-op
+      # (stage2-hook.sh explicitly permits uid 10000 startup)
+      securityContext:
+        runAsUser: 10000
+        runAsGroup: 10000
+        runAsNonRoot: true
+        fsGroup: 10000
+        # skip the recursive chown/chmod walk on every start once the volume root matches
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: hermes-agent
+          image: nousresearch/hermes-agent:v2026.7.7
+          args: [gateway, run]
+          envFrom:
+            - secretRef:
+                name: hermes-agent
+          env:
+            - name: API_SERVER_ENABLED
+              value: "true"
+            - name: API_SERVER_HOST
+              value: "0.0.0.0"
+            - name: HERMES_DASHBOARD
+              value: "1"
+            # Prevent hermes from autodetecting this by using a custom env var name
+            - name: HERMES_SEARXNG_SERVICE_URL
+              value: "http://searxng.searxng.svc.cluster.local:8080"
+            # s6-overlay stages its scripts into /run instead of writing /etc, so a read-only rootfs works
+            - name: S6_READ_ONLY_ROOT
+              value: "1"
+            # kubelet creates the /run emptyDir owned by root (fsGroup fixes only the group);
+            # this is s6's official opt-in to accept a /run it can't chown - single-uid pod, so harmless
+            - name: S6_YES_I_WANT_A_WORLD_WRITABLE_RUN_BECAUSE_KUBERNETES
+              value: "1"
+          ports:
+            - name: dashboard
+              containerPort: 9119
+            - name: openai-api
+              containerPort: 8642
+          resources:
+            requests:
+              cpu: "1"
+              memory: 4Gi
+            limits:
+              cpu: "2"
+              memory: 8Gi
+          # nothing runs as root now, so this just seals off setuid binaries as a re-escalation path
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+            # writable scratch on an otherwise read-only rootfs: s6 scandir + general temp
+            - name: run
+              mountPath: /run
+            - name: tmp
+              mountPath: /tmp
+            - name: var-tmp
+              mountPath: /var/tmp
+            # single-file subPath so .kube/ itself stays writable on the PVC (kubectl discovery cache);
+            # /opt/data/home is the terminal sandbox's HOME (container HOME is /opt/data)
+            - name: kubeconfig
+              mountPath: /opt/data/home/.kube/config
+              subPath: config
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hermes-agent
+        - name: run
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: var-tmp
+          emptyDir: {}
+        - name: kubeconfig
+          configMap:
+            name: hermes-agent-kubeconfig

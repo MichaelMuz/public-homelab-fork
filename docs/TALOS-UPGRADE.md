@@ -75,6 +75,9 @@ Scripts are in `scripts/talos-upgrade/`. Past upgrade scripts are kept in `histo
 
 ## Before upgrading
 
+Treat `Available upstream` in `VERSIONS.md` as an informational target. Update `Current/live version`
+only after the attended Talos or Kubernetes upgrade has completed.
+
 Back up etcd:
 ```
 talosctl etcd snapshot db.snapshot --nodes <CP_IP>

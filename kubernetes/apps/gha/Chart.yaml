@@ -1,0 +1,12 @@
+apiVersion: v2
+name: arc
+version: 1.0.0
+dependencies:
+  - name: gha-runner-scale-set-controller
+    alias: controller
+    version: "0.14.2"
+    repository: "oci://ghcr.io/actions/actions-runner-controller-charts"
+  - name: gha-runner-scale-set
+    alias: runner
+    version: "0.14.2"
+    repository: "oci://ghcr.io/actions/actions-runner-controller-charts"

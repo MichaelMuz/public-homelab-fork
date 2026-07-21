@@ -43,12 +43,14 @@ OPNsense router (N100 4 core fanless mini PC, 8GB RAM, 128GB SSD)
 
 ## OPNsense firewall rules
 
-| Interface | Rule                   | Direction                                 |
-|-----------|------------------------|-------------------------------------------|
-| WAN       | Block all (default)    | Internet cannot initiate to any LAN       |
-| Homelab   | Block to Personal net  | Homelab cannot initiate to 172.16.20.0/24 |
-| Homelab   | Pass all (below block) | Homelab can reach internet                |
-| Personal  | Pass all               | Personal can reach homelab and internet   |
+| Interface | Rule                      | Direction                                               |
+|-----------|---------------------------|---------------------------------------------------------|
+| WAN       | Pass TCP 443              | Internet → 192.168.1.210 (public Envoy)                 |
+| WAN       | Pass (all protocols) 6881 | Internet → 192.168.1.210 (qBittorrent via public Envoy) |
+| WAN       | Block all (default)       | Internet cannot initiate to any LAN (everything else)   |
+| Homelab   | Block to Personal net     | Homelab cannot initiate to 172.16.20.0/24               |
+| Homelab   | Pass all (below block)    | Homelab can reach internet                              |
+| Personal  | Pass all                  | Personal can reach homelab and internet                 |
 
 ## IPv6
 

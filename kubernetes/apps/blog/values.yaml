@@ -1,0 +1,4 @@
+site:
+  image:
+    name: ghcr.io/michaelmuz/blog
+    tag: latest

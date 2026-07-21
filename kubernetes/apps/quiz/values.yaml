@@ -1,0 +1,4 @@
+quiz:
+  image:
+    name: ghcr.io/michaelmuz/quiz
+    tag: latest

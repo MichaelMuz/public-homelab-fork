@@ -1,0 +1,11 @@
+# Uses ssd but otherwise very general defaults
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: longhorn-ssd
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+parameters:
+  diskSelector: "ssd"
+  # disableRevisionCounter matches the hdd default (perf, skips per-write counter tracking).
+  disableRevisionCounter: "true"

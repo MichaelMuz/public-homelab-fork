@@ -1,7 +1,8 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: allow-cnpg-and-envoy
+  name: immich
+  namespace: immich
 spec:
   endpointSelector: {}
   ingress:

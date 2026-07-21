@@ -1,0 +1,13 @@
+runner:
+  runnerScaleSetName: "gha-homelab"
+  githubConfigUrl: "https://github.com/MichaelMuz/expense-splitter"
+  githubConfigSecret: gha-github-pat
+  controllerServiceAccount:
+    # we deploy runner in same ns at same time as the controller so to prevent a failed lookup we hardcode to what this will be once controller is ready
+    name: gha-gha-rs-controller
+    namespace: gha
+  minRunners: 1
+  maxRunners: 3
+  containerMode:
+    # tried to avoid root container that docker requires with podman but talos disables user namespaces anyway
+    type: "dind"

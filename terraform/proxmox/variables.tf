@@ -10,20 +10,40 @@ variable "proxmox_cluster" {
     k8s_nodes = map(object({
       ip_address       = string
       is_control_plane = bool
-      disk_size        = number
-      memory           = number
-      cpu_cores        = number
-      boot_image_url   = string
+      # Boot disk size in GB. Still per-node because the unmigrated "fused" nodes use a large boot
+      # disk as their Longhorn storage, and bpg can't shrink a disk. Once every node is on split
+      # storage (small boot + lvm/passthrough disks) this collapses to a single shared default.
+      boot_disk_size     = number
+      memory             = number
+      cpu_cores          = number
+      boot_image_url     = string
+      lvm_disks          = optional(list(object({ size = number, tier = string })), [])
+      pass_through_disks = optional(list(object({ by_id_path = string, tier = string })), [])
     }))
   }))
+
+  validation {
+    condition = alltrue([
+      for tier in flatten([
+        for host in values(var.proxmox_cluster) : [
+          for node in values(host.k8s_nodes) : [
+            node.lvm_disks[*].tier,
+            node.pass_through_disks[*].tier,
+          ]
+        ]
+      ]) : contains(["ssd", "hdd"], tier)
+    ])
+    error_message = "Every disk tier must be \"ssd\" or \"hdd\"."
+  }
   default = {
+    # Note if you mean to delete a talos vm and make it differently, delete -> apply -> make new one. Otherwise may only half recreate and be in bad state
     "lab-1" = {
       ip_address = "192.168.1.200"
       k8s_nodes = {
         "talos-cp-01" = {
           ip_address       = "192.168.1.201"
           is_control_plane = true
-          disk_size        = 48
+          boot_disk_size   = 48
           memory           = 6144
           cpu_cores        = 4
           boot_image_url   = "https://factory.talos.dev/image/787b79bb847a07ebb9ae37396d015617266b1cef861107eaec85968ad7b40618/v1.7.4/nocloud-amd64.raw.gz"
@@ -36,7 +56,7 @@ variable "proxmox_cluster" {
         "talos-cp-02" = {
           ip_address       = "192.168.1.203"
           is_control_plane = true
-          disk_size        = 37
+          boot_disk_size   = 37
           memory           = 4096
           cpu_cores        = 3
           boot_image_url   = "https://factory.talos.dev/image/787b79bb847a07ebb9ae37396d015617266b1cef861107eaec85968ad7b40618/v1.7.4/nocloud-amd64.raw.gz"
@@ -44,10 +64,11 @@ variable "proxmox_cluster" {
         "talos-worker-02" = {
           ip_address       = "192.168.1.204"
           is_control_plane = false
-          disk_size        = 300
+          boot_disk_size   = 40
           memory           = 8192
           cpu_cores        = 5
-          boot_image_url   = "https://factory.talos.dev/image/787b79bb847a07ebb9ae37396d015617266b1cef861107eaec85968ad7b40618/v1.7.4/nocloud-amd64.raw.gz"
+          boot_image_url   = "https://factory.talos.dev/image/88d1f7a5c4f1d3aba7df787c448c1d3d008ed29cfb34af53fa0df4336a56040b/v1.12.6/nocloud-amd64.raw.gz"
+          # No lvm carve: shares a disk with control plane and extra I/O would contend with etcd's fsync, our rule ssd or not
         }
       }
     }
@@ -57,11 +78,16 @@ variable "proxmox_cluster" {
         "talos-worker-03" = {
           ip_address       = "192.168.1.205"
           is_control_plane = false
-          disk_size        = 750
-          memory           = 6144
+          boot_disk_size   = 40
+          memory           = 14336
           cpu_cores        = 4
-          # cloud factory only advertises .raw.xz but people just replace .xz with .gz https://forum.proxmox.com/threads/cloud-init-using-a-raw-xz-file.158782/
           boot_image_url   = "https://factory.talos.dev/image/88d1f7a5c4f1d3aba7df787c448c1d3d008ed29cfb34af53fa0df4336a56040b/v1.12.6/nocloud-amd64.raw.gz"
+          lvm_disks = [
+            { size = 250, tier = "hdd" },
+          ]
+          pass_through_disks = [
+            { by_id_path = "/dev/disk/by-id/ata-WDC_WD30EFRX-68EUZN0_WD-WCC4N0HT7Z2S", tier = "hdd" },
+          ]
         }
       }
     }
@@ -71,10 +97,18 @@ variable "proxmox_cluster" {
         "talos-worker-04" = {
           ip_address       = "192.168.1.206"
           is_control_plane = false
-          disk_size        = 900
-          memory           = 14336
-          cpu_cores        = 4
-          boot_image_url   = "https://factory.talos.dev/image/787b79bb847a07ebb9ae37396d015617266b1cef861107eaec85968ad7b40618/v1.7.4/nocloud-amd64.raw.gz"
+          boot_disk_size   = 40
+          memory           = 6144
+          cpu_cores        = 3
+          boot_image_url   = "https://factory.talos.dev/image/88d1f7a5c4f1d3aba7df787c448c1d3d008ed29cfb34af53fa0df4336a56040b/v1.12.6/nocloud-amd64.raw.gz"
+          # SSD tier carved from the nvme local-lvm pool; the two HDDs pass through raw as the hdd tier.
+          lvm_disks = [
+            { size = 250, tier = "ssd" },
+          ]
+          pass_through_disks = [
+            { by_id_path = "/dev/disk/by-id/ata-WDC_WD10SPZX-08Z10_WD-WXK2A80PVJL4", tier = "hdd" },
+            { by_id_path = "/dev/disk/by-id/ata-WDC_WD5000AAKX-083CA1_WD-WMAYUX353008", tier = "hdd" },
+          ]
         }
       }
     }
@@ -84,18 +118,22 @@ variable "proxmox_cluster" {
         "talos-cp-03" = {
           ip_address       = "192.168.1.207"
           is_control_plane = true
-          disk_size        = 100
-          memory           = 3072
+          boot_disk_size   = 100
+          memory           = 4096
           cpu_cores        = 1
-          boot_image_url   = "https://factory.talos.dev/image/787b79bb847a07ebb9ae37396d015617266b1cef861107eaec85968ad7b40618/v1.7.4/nocloud-amd64.raw.gz"
+          boot_image_url   = "https://factory.talos.dev/image/88d1f7a5c4f1d3aba7df787c448c1d3d008ed29cfb34af53fa0df4336a56040b/v1.12.6/nocloud-amd64.raw.gz"
         }
         "talos-worker-05" = {
           ip_address       = "192.168.1.208"
           is_control_plane = false
-          disk_size        = 800
-          memory           = 3072
+          boot_disk_size   = 40
+          memory           = 10240
           cpu_cores        = 3
-          boot_image_url   = "https://factory.talos.dev/image/787b79bb847a07ebb9ae37396d015617266b1cef861107eaec85968ad7b40618/v1.7.4/nocloud-amd64.raw.gz"
+          boot_image_url   = "https://factory.talos.dev/image/88d1f7a5c4f1d3aba7df787c448c1d3d008ed29cfb34af53fa0df4336a56040b/v1.12.6/nocloud-amd64.raw.gz"
+          # No lvm carve: shares a disk with control plane and extra I/O would contend with etcd's fsync
+          pass_through_disks = [
+            { by_id_path = "/dev/disk/by-id/ata-WDC_WD10EZEX-21M2NA0_WCC3F3NJD56N", tier = "hdd" },
+          ]
         }
       }
     }

@@ -1,0 +1,68 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: renovate
+  namespace: renovate
+spec:
+  schedule: "0 10 * * 1"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 3600
+      template:
+        metadata:
+          labels:
+            app: renovate
+        spec:
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 12021
+            runAsGroup: 12021
+            fsGroup: 12021
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: renovate
+              image: renovate/renovate:43.256.0
+              env:
+                - name: RENOVATE_PLATFORM
+                  value: gitlab
+                - name: RENOVATE_REPOSITORIES
+                  value: '["michael-muzafarov/homelab"]'
+                - name: RENOVATE_ONBOARDING
+                  value: "false"
+                - name: RENOVATE_GIT_AUTHOR
+                  value: "Renovate Bot <bot@renovateapp.com>"
+                - name: RENOVATE_BASE_DIR
+                  value: /tmp/renovate
+                - name: RENOVATE_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: renovate-env
+                      key: RENOVATE_TOKEN
+                - name: RENOVATE_GITHUB_COM_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: renovate-env
+                      key: RENOVATE_GITHUB_COM_TOKEN
+              resources:
+                requests:
+                  cpu: 250m
+                  memory: 512Mi
+                limits:
+                  cpu: "2"
+                  memory: 2Gi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+              volumeMounts:
+                - name: work
+                  mountPath: /tmp/renovate
+          restartPolicy: Never
+          volumes:
+            - name: work
+              emptyDir: {}

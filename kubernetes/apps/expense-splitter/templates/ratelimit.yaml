@@ -1,0 +1,42 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: expense-splitter-auth
+  namespace: expense-splitter
+spec:
+  parentRefs:
+    - name: eg-public
+      namespace: envoy-gateway-system
+      sectionName: https-public
+  hostnames:
+    - "splitr.michaelmuzafarov.dev"
+  rules:
+    - matches:
+        - method: "POST"
+          path:
+            type: PathPrefix
+            value: /api/auth
+      backendRefs:
+        - name: backend
+          port: 3000
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: expense-splitter-auth-ratelimit
+  namespace: expense-splitter
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: expense-splitter-auth
+  rateLimit:
+    local:
+      rules:
+        - clientSelectors:
+            - sourceCIDR:
+                value: 0.0.0.0/0
+                type: Distinct
+          limit:
+            requests: 10
+            unit: Minute

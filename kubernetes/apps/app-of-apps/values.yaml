@@ -17,8 +17,10 @@ applications:
   - name: monitoring
     namespace: monitoring
     serverSideApply: true # otherwise crd metadata annotations too long
-  - name: static-web-test
-    namespace: static-web-test
+  - name: homepage
+    namespace: homepage
+  - name: searxng
+    namespace: searxng
   - name: servarr
     namespace: servarr
   - name: immich
@@ -33,3 +35,39 @@ applications:
   - name: cilium
     namespace: kube-system
     serverSideApply: true
+  - name: gha
+    namespace: gha
+    serverSideApply: true
+  - name: renovate
+    namespace: renovate
+  - name: expense-splitter
+    namespace: expense-splitter
+    continuousDelivery:
+      - name: backend
+        image: ghcr.io/michaelmuz/expense-splitter-backend
+        tag: latest
+      - name: frontend
+        image: ghcr.io/michaelmuz/expense-splitter-frontend
+        tag: latest
+  - name: hermes-agent
+    namespace: hermes-agent
+  - name: blog
+    namespace: blog
+    continuousDelivery:
+      - name: site
+        image: ghcr.io/michaelmuz/blog
+        tag: latest
+  - name: quiz
+    namespace: quiz
+    continuousDelivery:
+      - name: quiz
+        image: ghcr.io/michaelmuz/quiz
+        tag: latest
+  - name: blue-bubbles
+    namespace: blue-bubbles
+    continuousDelivery:
+      - name: ingest
+        image: ghcr.io/michaelmuz/blue-bubbles-ingest
+        tag: latest
+  - name: n8n
+    namespace: n8n

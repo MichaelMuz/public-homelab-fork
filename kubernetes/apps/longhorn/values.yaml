@@ -1,3 +1,19 @@
 longhorn:
   defaultSettings:
+    createDefaultDiskLabeledNodes: true
+    storageReservedPercentageForDefaultDisk: 0
     concurrentAutomaticEngineUpgradePerNodeLimit: 10
+    nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
+    # strict-local PG volumes make every replica the "last replica" bc each have just 1 relica total.
+    # block-if-contains-last-replica would refuse all drains on PG nodes.
+    # block-for-eviction* can't evict strict-local replicas elsewhere, so those
+    # would block forever too. allow-if-replica-is-stopped lets the natural
+    # evict→detach→stop flow proceed.
+    nodeDrainPolicy: allow-if-replica-is-stopped
+    rwxVolumeFastFailover: true
+    # replicaAutoBalance: best-effort
+
+  persistence:
+    defaultDiskSelector:
+      enable: true
+      selector: "hdd"

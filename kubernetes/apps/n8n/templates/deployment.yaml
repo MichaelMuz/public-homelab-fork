@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: n8n
+  namespace: n8n
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: n8n
+  template:
+    metadata:
+      labels:
+        app: n8n
+    spec:
+      automountServiceAccountToken: false
+      # the Service is named n8n, so service links would inject N8N_PORT=tcp://<clusterIP>:5678,
+      # colliding with n8n's own N8N_PORT setting and making it fall back to the default port
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: n8n
+          image: n8nio/n8n:2.29.10
+          ports:
+            - name: http
+              containerPort: 5678
+          env:
+            - name: DB_TYPE
+              value: postgresdb
+            - name: N8N_DEFAULT_BINARY_DATA_MODE
+              value: database
+            - name: DB_POSTGRESDB_HOST_FILE
+              value: /run/secrets/database/host
+            - name: DB_POSTGRESDB_PORT_FILE
+              value: /run/secrets/database/port
+            - name: DB_POSTGRESDB_DATABASE_FILE
+              value: /run/secrets/database/dbname
+            - name: DB_POSTGRESDB_USER_FILE
+              value: /run/secrets/database/username
+            - name: DB_POSTGRESDB_PASSWORD_FILE
+              value: /run/secrets/database/password
+            - name: N8N_ENCRYPTION_KEY_FILE
+              value: /run/secrets/encryption/N8N_ENCRYPTION_KEY
+            - name: N8N_USER_FOLDER
+              value: /data
+            # keep npm downloads off the read-only image home; installed package code remains on /data
+            - name: NPM_CONFIG_CACHE
+              value: /tmp/.npm
+            - name: N8N_COMMUNITY_PACKAGES_ENABLED
+              value: "true"
+            - name: N8N_COMMUNITY_PACKAGES_MANAGED_BY_ENV
+              value: "false"
+            - name: N8N_HOST
+              value: n8n.admin.michaelmuzafarov.dev
+            - name: N8N_PROTOCOL
+              value: https
+            - name: N8N_EDITOR_BASE_URL
+              value: https://n8n.admin.michaelmuzafarov.dev
+            - name: WEBHOOK_URL
+              value: https://n8n.admin.michaelmuzafarov.dev/
+            - name: N8N_PROXY_HOPS
+              value: "1"
+            - name: GENERIC_TIMEZONE
+              value: Etc/UTC
+            - name: TZ
+              value: Etc/UTC
+            - name: N8N_DIAGNOSTICS_ENABLED
+              value: "false"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            failureThreshold: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /healthz/readiness
+              port: http
+            periodSeconds: 10
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+            - name: database
+              mountPath: /run/secrets/database
+              readOnly: true
+            - name: encryption
+              mountPath: /run/secrets/encryption
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: n8n-data
+        - name: tmp
+          emptyDir: {}
+        - name: database
+          secret:
+            secretName: n8n-db-app
+        - name: encryption
+          secret:
+            secretName: n8n-encryption-key

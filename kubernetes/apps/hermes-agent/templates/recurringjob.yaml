@@ -1,0 +1,12 @@
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: hermes-snapshot
+  # Longhorn only reconciles RecurringJobs in its own namespace
+  namespace: longhorn-system
+spec:
+  task: snapshot
+  cron: "0 */6 * * *"
+  retain: 28
+  concurrency: 1
+  groups: []

@@ -1,0 +1,28 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: n8n-db
+  namespace: n8n
+spec:
+  instances: 3
+
+  minSyncReplicas: 1
+  maxSyncReplicas: 1
+
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
+    podAntiAffinityType: required
+
+  replicationSlots:
+    highAvailability:
+      enabled: true
+
+  storage:
+    size: 5Gi
+    storageClass: longhorn-pg-single-replica
+
+  bootstrap:
+    initdb:
+      database: n8n
+      owner: app
